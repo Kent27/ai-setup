@@ -239,11 +239,31 @@ Create the entry point documentation (~100-200 lines):
 npm install
 cp .env.example .env.local
 npm run dev
-```
+
 ```
 
-**3. Project Structure** (10-20 lines)
-Simple directory tree with one-line descriptions.
+**3. Project Structure** (10–20 lines)
+
+Simple directory tree with one-line descriptions. This should reflect the actual backend-focused layout.
+
+Example:
+```
+This is a quick map of the folders you’ll touch most; for the complete breakdown and design rationale, see [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
+
+app/                 # Backend application package (most changes happen here)
+├── main.py          # FastAPI entry point (middleware + router registration)
+├── routers/         # HTTP + WebSocket endpoints (add/modify API routes here)
+├── services/        # Business logic + DB queries + external integrations
+├── models/          # Pydantic request/response schemas
+├── database/        # MariaDB client + SQL migrations
+├── utils/           # Shared utilities (auth dependencies, logging, helpers)
+└── functions/       # AI function-calling handlers used by OpenAI tools
+
+docs/                # Human docs (architecture + workflows)
+tests/               # Test suite (currently focused on performance)
+config/              # Local config (credentials are gitignored under config/credentials/)
+
+```
 
 **4. Code Conventions** (10-15 lines)
 - TypeScript configuration
