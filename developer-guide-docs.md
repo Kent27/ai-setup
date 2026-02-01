@@ -1,155 +1,402 @@
-# Documentation Generation Prompt
+# Task: Generate Repository Documentation (AGENTS.md + Human Docs)
 
-You are generating **human-facing repository documentation** intended to help new and returning developers understand, run, and safely modify this codebase.
+## Overview
 
-## Primary Goal
+Generate a **single root AGENTS.md** and **human-facing documentation** that work together. The human docs serve as detailed references that AGENTS.md can point to, eliminating the need for multiple AGENTS.md files throughout the codebase.
 
-Create clear, practical documentation that explains **what this repository is**, **how it is structured**, and **how developers work with it**, **without duplicating or contradicting `AGENTS.md`**.
+### Documentation Structure
 
-This documentation is **not** a replacement for `AGENTS.md`.  
-`AGENTS.md` defines **AI behavior and contribution rules**.  
-This documentation explains **the system itself**.
+| File | Audience | Purpose |
+|------|----------|---------|
+| `AGENTS.md` | AI Agents | Lightweight rules, JIT commands, links to human docs |
+| `README.md` | Humans + Agents | Entry point, setup, conventions |
+| `docs/ARCHITECTURE.md` | Humans + Agents | System design, patterns, key files |
+| `docs/WORKFLOWS.md` | Humans + Agents | How-to guides, debugging, common tasks |
 
----
+### Key Principle
 
-## Scope & Boundaries (Important)
-
-- ❌ Do NOT restate coding rules, AI instructions, or contribution policies already defined in `AGENTS.md`.
-- ❌ Do NOT give instructions like "the agent should…" or "always do X when editing".
-- ✅ You MAY reference `AGENTS.md` when behavior or rules are intentionally delegated there.
-- ✅ Focus on **understanding**, not enforcement.
-
-If potential overlap with `AGENTS.md` is unclear, insert a short inline note: _If this overlaps with AGENTS.md, defer to AGENTS.md as the source of truth._
+**Human docs replace sub-folder AGENTS.md files.** Instead of creating `apps/web/AGENTS.md`, `services/auth/AGENTS.md`, etc., document those patterns in `docs/ARCHITECTURE.md` and `docs/WORKFLOWS.md`. The root AGENTS.md links to these docs.
 
 ---
 
-## Documentation File Separation (Critical)
+## Phase 1: Repository Analysis
 
-When generating multiple documentation files, **each file must have a single, distinct purpose**. Do NOT duplicate content across files.
+Before generating any files, analyze the codebase and document:
 
-### File Purposes
+1. **Repository type**: Monorepo, multi-package, or single project?
+2. **Primary tech stack**: Languages, frameworks, key tools
+3. **Directory structure**: Major directories and their purposes
+4. **Build system**: Package manager, workspace tools (Turborepo, Lerna, etc.)
+5. **Testing setup**: Test framework, test locations, coverage tools
+6. **Key patterns**: Code organization, naming conventions, important examples
 
-| File | Purpose | Answers |
-|------|---------|---------|
-| `README.md` | Entry point | "What is this? How do I get started?" |
-| `docs/ARCHITECTURE.md` | System design | "How is this designed? How does data flow?" |
-| `docs/WORKFLOWS.md` | How-to recipes | "How do I do X?" |
-
-### Separation Rules
-
-**README.md** (entry point - keep lean):
-- Project overview (1-2 paragraphs max)
-- Quick start commands (install, configure, run)
-- Code conventions
-- Links to other docs
-- ❌ NO architecture diagrams (link to ARCHITECTURE.md)
-- ❌ NO workflow guides (link to WORKFLOWS.md)
-
-**docs/ARCHITECTURE.md** (system design):
-- Architecture diagram
-- Layer/component descriptions
-- External dependencies
-- Key runtime concepts
-- Key files reference
-- ❌ NO setup instructions (that's README)
-- ❌ NO how-to guides (that's WORKFLOWS)
-
-**docs/WORKFLOWS.md** (how-to recipes):
-- Step-by-step guides for common tasks
-- Debugging guides
-- Common file locations for specific changes
-- ❌ NO project overview (that's README)
-- ❌ NO architecture explanation (that's ARCHITECTURE)
-
-### Before Writing, Ask:
-
-1. Does this content already exist in another file?
-2. Which file's core purpose does this content serve?
-3. Can I link instead of duplicating?
+Present this as a **structured analysis** before generating files.
 
 ---
 
-## What This Documentation MUST Cover
+## Phase 2: Generate AGENTS.md (Root Only)
 
-### 1. Repository Overview (README.md only)
+Create a **single lightweight AGENTS.md** (~100-150 lines) with these sections:
 
-- What problem this repository solves
-- Who it is for (e.g. backend service, web app, internal tool)
-- High-level responsibilities and non-goals
+### Required Sections
 
-### 2. Architecture & Mental Model (ARCHITECTURE.md only)
+**1. Read First** (3-5 lines)
+```markdown
+## Read First
 
-- High-level architecture (components, services, or layers)
-- How data and control flow through the system
-- External dependencies (e.g. databases, APIs, queues)
-- Include a simple diagram (ASCII or Mermaid) if it improves clarity
+Before making changes, read these docs:
+- `README.md` — setup, conventions, PR checklist
+- `docs/ARCHITECTURE.md` — system design, layers, key files
+- `docs/WORKFLOWS.md` — how to add features, debugging guides
+```
 
-### 3. Codebase Structure (README.md - brief, ARCHITECTURE.md - detailed)
+**2. Agent Rules** (5-10 lines)
+- Validation commands to run before completing
+- Key behavioral rules (follow patterns, use codebase search)
 
-- README: Simple directory tree with one-line descriptions
-- ARCHITECTURE: Detailed explanation of layers and their responsibilities
+**3. Quick Reference** (10-15 lines)
+- Project type and tech stack (1-2 lines)
+- Key paths summary (components, services, routes, etc.)
 
-### 4. Key Design Decisions (ARCHITECTURE.md only)
+**4. JIT Index Commands** (10-20 lines)
+Provide search commands, NOT content:
+```markdown
+## JIT Index Commands
 
-Document important **design choices and trade-offs**, such as:
-- Why a certain framework, pattern, or service was chosen
-- Constraints that shaped the design
-- Assumptions that future developers should know
+```bash
+# Find a component
+grep -rn "export.*ComponentName" src/components/
 
-### 5. Common Developer Workflows (WORKFLOWS.md only)
+# Find a service function  
+grep -rn "export async function" src/services/
 
-Provide practical, step-by-step guidance for common tasks, such as:
-- Adding a new feature or module
-- Modifying an existing flow
-- Debugging or tracing behavior
+# Find page routes
+find app -name "page.tsx"
+```
+```
 
-Prefer **checklists or numbered steps** over long prose.
+**5. Common Patterns** (5-10 lines)
+Point to example files for key patterns:
+```markdown
+## Common Patterns
 
-### 6. Setup Instructions (README.md only)
+### Adding a new page
+See: `app/dashboard/page.tsx`, `docs/WORKFLOWS.md#adding-a-page`
 
-- Install commands
-- Environment configuration
-- Run commands
-- Validation commands
+### Creating a service
+See: `src/services/auth/auth.ts`, `docs/WORKFLOWS.md#creating-a-service`
+```
 
-### 7. Onboarding Notes / Gotchas (WORKFLOWS.md - debugging section)
+### AGENTS.md Constraints
 
-Include anything a new developer would struggle to infer:
-- Required environment variables or setup assumptions
-- External systems they must have access to
-- "Gotchas" or sharp edges worth knowing early
-
----
-
-## Tone & Style Guidelines
-
-- Be concise, explicit, and structured
-- Prefer bullets and headings over paragraphs
-- Explain **why things exist**, not just **what they do**
-- Assume the reader is a competent developer but new to this repo
-
----
-
-## Cross-References
-
-- When rules or behavioral constraints apply, **reference `AGENTS.md` instead of repeating them**
-- When deeper rationale exists, link to existing docs (e.g. ADRs, architecture notes)
-- **Link between docs instead of duplicating** (e.g., README links to ARCHITECTURE for diagrams)
+- [ ] Under 150 lines total
+- [ ] No detailed explanations (link to human docs instead)
+- [ ] Commands are copy-paste ready
+- [ ] Every pattern reference points to a real file
+- [ ] Links to human docs for detailed guidance
 
 ---
 
-## Output Expectations
+## Phase 3: Generate README.md
 
-Produce clean Markdown documentation suitable for files such as:
-- `README.md`
-- `docs/ARCHITECTURE.md`
-- `docs/WORKFLOWS.md`
+Create the entry point documentation (~100-200 lines):
 
-Ensure:
-- No duplication or contradiction with `AGENTS.md`
-- **No duplication between README, ARCHITECTURE, and WORKFLOWS**
-- Clear separation between **system understanding** (this doc) and **agent behavior** (`AGENTS.md`)
-- Content is immediately useful to future developers
+### Required Sections
+
+**1. Project Overview** (5-10 lines)
+- What this project does
+- Who it's for
+- High-level tech stack
+
+**2. Quick Start** (10-20 lines)
+```markdown
+## Quick Start
+
+### Prerequisites
+- Node.js 18+
+- pnpm 8+
+
+### Setup
+```bash
+pnpm install
+cp .env.example .env.local
+pnpm dev
+```
+```
+
+**3. Project Structure** (10-20 lines)
+Simple directory tree with one-line descriptions:
+```markdown
+## Project Structure
+
+```
+├── app/              # Next.js app router pages
+├── src/
+│   ├── components/   # React components
+│   ├── services/     # Business logic & API calls
+│   ├── states/       # Zustand stores
+│   └── types/        # TypeScript types
+└── docs/             # Documentation
+```
+```
+
+**4. Code Conventions** (10-15 lines)
+- TypeScript configuration
+- Styling approach
+- Import conventions
+- Commit message format
+
+**5. Available Scripts** (5-10 lines)
+```markdown
+## Scripts
+
+| Command | Description |
+|---------|-------------|
+| `pnpm dev` | Start development server |
+| `pnpm build` | Production build |
+| `pnpm lint` | Run ESLint |
+| `pnpm test` | Run tests |
+```
+
+**6. Documentation Links** (3-5 lines)
+```markdown
+## Documentation
+
+- [Architecture](docs/ARCHITECTURE.md) — System design and patterns
+- [Workflows](docs/WORKFLOWS.md) — How-to guides
+```
+
+**7. PR Checklist** (5-10 lines)
+```markdown
+## PR Checklist
+
+Before submitting:
+- [ ] `pnpm lint` passes
+- [ ] `pnpm build` succeeds
+- [ ] Tests pass (if applicable)
+- [ ] No console.log statements
+```
+
+### README.md Constraints
+
+- [ ] No architecture diagrams (link to ARCHITECTURE.md)
+- [ ] No workflow guides (link to WORKFLOWS.md)
+- [ ] Keep setup instructions concise
+
+---
+
+## Phase 4: Generate docs/ARCHITECTURE.md
+
+Create the system design documentation (~200-400 lines):
+
+### Required Sections
+
+**1. System Overview** (10-20 lines)
+- Architecture diagram (ASCII or Mermaid)
+- High-level component descriptions
+
+**2. Layer Descriptions** (30-50 lines)
+For each major layer/directory, document:
+- Purpose and responsibilities
+- Key files and their roles
+- Patterns used
+
+Example:
+```markdown
+## Layers
+
+### Pages (`app/`)
+Next.js App Router pages. Each route folder contains:
+- `page.tsx` — Page component
+- `layout.tsx` — Layout wrapper (optional)
+- `loading.tsx` — Loading state (optional)
+
+### Components (`src/components/`)
+React components organized by feature:
+- `ui/` — Reusable UI primitives (Button, Input, etc.)
+- `auth/` — Authentication components
+- `chat/` — Chat feature components
+```
+
+**3. Data Flow** (10-20 lines)
+- How data moves through the system
+- State management approach
+- API communication patterns
+
+**4. External Dependencies** (10-15 lines)
+- Third-party services
+- APIs consumed
+- Infrastructure dependencies
+
+**5. Key Files Reference** (20-40 lines)
+Document critical files that agents/developers should understand:
+```markdown
+## Key Files
+
+| File | Purpose |
+|------|---------|
+| `src/services/api/apiClient.ts` | Centralized API client with auth |
+| `src/states/authState.ts` | Authentication state management |
+| `src/middleware.ts` | Route protection middleware |
+```
+
+**6. Patterns & Conventions** (30-50 lines)
+**This section replaces sub-folder AGENTS.md files.**
+
+Document patterns by domain with file examples:
+```markdown
+## Patterns
+
+### Components
+- Use functional components with TypeScript
+- Props interface above component: see `src/components/ui/button.tsx`
+- Colocate styles when component-specific
+
+### Services
+- Export async functions, not classes
+- Handle errors with try/catch, return typed results
+- Example: `src/services/auth/auth.ts`
+
+### State (Zustand)
+- One store per domain
+- Use selectors for derived state
+- Example: `src/states/authState.ts`
+```
+
+**7. Design Decisions** (10-20 lines)
+Document important choices and trade-offs:
+```markdown
+## Design Decisions
+
+### Why Zustand over Redux
+- Simpler API, less boilerplate
+- Better TypeScript inference
+- Sufficient for current scale
+
+### Why App Router over Pages Router
+- Server components reduce client bundle
+- Better data fetching patterns
+- Future-proof architecture
+```
+
+### ARCHITECTURE.md Constraints
+
+- [ ] No setup instructions (that's README)
+- [ ] No step-by-step workflows (that's WORKFLOWS)
+- [ ] Every pattern has a real file example
+- [ ] Includes diagram for system overview
+
+---
+
+## Phase 5: Generate docs/WORKFLOWS.md
+
+Create the how-to guide documentation (~150-300 lines):
+
+### Required Sections
+
+**1. Common Tasks** (50-100 lines)
+Step-by-step guides for frequent development tasks:
+
+```markdown
+## Adding a New Page
+
+1. Create route folder: `app/app/[feature]/page.tsx`
+2. Add page component (copy from `app/app/dashboard/page.tsx`)
+3. If protected, ensure middleware covers the route
+4. Add navigation link if needed
+
+## Adding a New Service Function
+
+1. Create/update file in `src/services/[domain]/`
+2. Export async function with typed parameters and return
+3. Use `apiFetch` for API calls (see `src/services/api/apiClient.ts`)
+4. Add error handling with try/catch
+
+## Adding a New Component
+
+1. Create file in `src/components/[feature]/ComponentName.tsx`
+2. Define Props interface
+3. Export function component
+4. Add to barrel export if exists (`index.ts`)
+```
+
+**2. Debugging Guide** (20-40 lines)
+```markdown
+## Debugging
+
+### API Errors
+1. Check network tab for response details
+2. Verify auth token in request headers
+3. Check `src/services/api/apiClient.ts` for error handling
+
+### State Issues
+1. Use React DevTools to inspect Zustand stores
+2. Check state updates in `src/states/[domain]State.ts`
+3. Verify selectors return expected values
+
+### Build Failures
+1. Run `pnpm lint` to check for syntax errors
+2. Run `pnpm build` locally to reproduce
+3. Check for missing dependencies or imports
+```
+
+**3. Common File Locations** (10-20 lines)
+```markdown
+## Where to Find Things
+
+| I need to... | Look in... |
+|--------------|------------|
+| Add a new page | `app/app/[feature]/page.tsx` |
+| Add a UI component | `src/components/ui/` |
+| Add business logic | `src/services/[domain]/` |
+| Add global state | `src/states/[domain]State.ts` |
+| Add types | `src/types/[domain].ts` |
+```
+
+**4. Gotchas & Tips** (10-20 lines)
+```markdown
+## Gotchas
+
+- **Environment variables**: Client-side vars need `NEXT_PUBLIC_` prefix
+- **Imports**: Use `@/` for absolute imports from `src/`
+- **API calls**: Always use `apiFetch`, never raw `fetch`
+- **Auth state**: Access via `useAuthState()` hook, not direct import
+```
+
+### WORKFLOWS.md Constraints
+
+- [ ] No project overview (that's README)
+- [ ] No architecture explanation (that's ARCHITECTURE)
+- [ ] Practical, actionable steps
+- [ ] File paths are real and accurate
+
+---
+
+## Output Format
+
+Generate files in this order:
+
+```
+---
+File: `AGENTS.md`
+---
+[content]
+
+---
+File: `README.md`
+---
+[content]
+
+---
+File: `docs/ARCHITECTURE.md`
+---
+[content]
+
+---
+File: `docs/WORKFLOWS.md`
+---
+[content]
+```
 
 ---
 
@@ -157,9 +404,24 @@ Ensure:
 
 Before finalizing, verify:
 
-- [ ] README.md has NO architecture diagrams (only links)
-- [ ] README.md has NO workflow guides (only links)
-- [ ] ARCHITECTURE.md has NO setup instructions
-- [ ] WORKFLOWS.md has NO project overview
+### No Duplication
 - [ ] Each piece of information appears in exactly ONE file
-- [ ] Files link to each other where appropriate
+- [ ] Files link to each other instead of repeating content
+- [ ] AGENTS.md links to human docs, not vice versa
+
+### AGENTS.md Quality
+- [ ] Under 150 lines
+- [ ] JIT commands use real patterns from codebase
+- [ ] All file references exist
+- [ ] Commands are copy-paste ready
+
+### Human Docs Quality
+- [ ] README has no architecture diagrams or workflows
+- [ ] ARCHITECTURE has no setup instructions
+- [ ] WORKFLOWS has no project overview
+- [ ] All file examples are real
+
+### Agent Usability
+- [ ] Human docs provide enough detail for agents to follow patterns
+- [ ] ARCHITECTURE.md patterns section replaces need for sub-folder AGENTS.md
+- [ ] WORKFLOWS.md provides step-by-step guidance agents can follow
