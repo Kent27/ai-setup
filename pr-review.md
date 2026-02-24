@@ -15,7 +15,7 @@ Be strict about NOT inventing context. If something is missing, say so.
 8) Git Diff (MANDATORY):
 9) Additional context (optional):
    - referenced files / surrounding code
-   - AGENTS.md / rules
+   - AGENTS.md / SKILL.md / rules
    - environment assumptions
 
 ## Hard Rules
