@@ -10,6 +10,7 @@ Be strict about NOT inventing context. If something is missing, say so.
 - If you’re unsure, mark it as **NEEDS CONFIRMATION** and list exactly what to check.
 - Prefer actionable guidance: propose exact code changes or ready-to-paste review comments.
 - If the diff is large, prioritize high-risk areas first and call out what you did NOT review deeply.
+- **Every actionable finding** (in sections 4, 5, 6, 7, 9) MUST end with a **“Prompt for AI Agents”** block — a self-contained, copy-pasteable instruction that an AI coding agent can execute without additional context. Follow the format described below.
 
 ---
 
@@ -41,6 +42,8 @@ For each item:
 - **What’s wrong**
 - **Why it matters**
 - **Suggested fix:** concrete change(s) (code-level if possible)
+- **Prompt for AI Agents:** A single, self-contained paragraph that tells an AI agent exactly what to verify and fix. Include the file path, line range, the specific variable/function names involved, and the expected before→after behavior. Example:
+  > Verify each finding against the current code and only fix it if needed. In `@backend/app/library/compiler/cordova.go` around lines 120–125, replace the unchecked `err` return from `os.MkdirAll` with an explicit `if err != nil { return fmt.Errorf("failed to create dir: %w", err) }` guard so that directory-creation failures surface instead of silently proceeding.
 
 ### 5) Edge Cases & Failure Modes
 Cover (as applicable):
@@ -52,6 +55,9 @@ Cover (as applicable):
 - concurrency issues (if applicable)
 - environment/config differences (dev/staging/prod)
 
+For each edge case finding, append:
+- **Prompt for AI Agents:** A self-contained instruction for an AI agent to locate and fix the edge case. Include file path, function name, the missing guard or check, and what the correct behavior should be.
+
 ### 6) Security & Privacy
 Check (as applicable):
 - auth / permissions / access control
@@ -59,6 +65,9 @@ Check (as applicable):
 - secret leakage (logs, configs, client bundles)
 - PII handling / retention
 If none found, explicitly say: **No obvious security issues from provided context.**
+
+For each security finding, append:
+- **Prompt for AI Agents:** A self-contained instruction for an AI agent to remediate the security issue. Include file path, line range, the vulnerable pattern, and the exact secure replacement.
 
 ### 7) Performance & Scalability
 Check (as applicable):
@@ -68,6 +77,9 @@ Check (as applicable):
 - large payloads / big queries
 - caching and rate limiting considerations
 If not applicable, say why.
+
+For each performance finding, append:
+- **Prompt for AI Agents:** A self-contained instruction for an AI agent to apply the optimization. Include file path, function name, the current inefficient pattern, and the concrete refactor.
 
 ### 8) Tests & Observability
 - What tests exist vs missing?
@@ -82,11 +94,15 @@ If not applicable, say why.
 - future-proofing
 - consistency with repo conventions (if provided)
 
+For each code quality finding, append:
+- **Prompt for AI Agents:** A self-contained instruction for an AI agent to improve the code. Include file path, the current pattern, and the refactored replacement.
+
 ### 10) Review Comments to Paste (Ready-to-use)
 Provide 5–15 comments formatted like:
 - **Comment:** “...”
 - **Location:** file:line or snippet anchor
 - **Intent:** question / suggestion / nit / blocker
+- **Prompt for AI Agents:** (required for suggestion / blocker intent) A self-contained, deterministic instruction paragraph that an AI coding agent can copy-paste and execute. Must reference the exact file path (using `@path/to/file`), line range, variable/function names, the current code pattern, and the expected fix. Start with “Verify each finding against the current code and only fix it if needed.”
 
 ### 11) Merge Recommendation
 Choose one:
