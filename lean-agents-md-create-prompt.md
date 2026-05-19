@@ -1,6 +1,6 @@
 # Task: Generate Hierarchical AGENTS.md System
 
-## Research-Backed Principles
+## Principles
 
 The following principles are based on practical observations from agent workflows, prompt engineering experiments, and common failure patterns in repository-scale coding agents:
 
@@ -11,13 +11,13 @@ The following principles are based on practical observations from agent workflow
 
 ### What Belongs in AGENTS.md
 
-| INCLUDE (high value)                        | EXCLUDE (agents infer these)              |
-|---------------------------------------------|-------------------------------------------|
-| Non-obvious conventions (import aliases, naming rules) | File tree / directory descriptions |
-| Security guardrails (gitignored secrets, auth flow)    | What TypeScript strict mode means  |
-| Build/test commands (only if non-standard)             | Standard framework conventions     |
-| Gotchas that waste agent turns                         | Obvious patterns visible in code   |
-| Pointer to example files for unusual patterns          | Exhaustive API/type documentation  |
+| INCLUDE (high value)                                   | EXCLUDE (agents infer these)             |
+|--------------------------------------------------------|------------------------------------------|
+| Non-obvious conventions (import aliases, naming rules) | File tree / directory descriptions       |
+| Security guardrails (gitignored secrets, auth flow)    | What TypeScript strict mode means        |
+| Build/test commands (only if non-standard)             | Standard framework conventions           |
+| Gotchas that waste agent turns                         | Obvious patterns visible in code         |
+| Pointer to example files for unusual patterns          | Exhaustive API/type documentation        |
 
 ---
 
@@ -37,35 +37,9 @@ Present this as a short structured summary before generating files.
 
 ---
 
-## Existing AGENTS.md Handling
+## Phase 2: Create Root AGENTS.md
 
-If an AGENTS.md file already exists:
-
-- Treat the existing file as the primary source of repository-specific knowledge.
-- Preserve high-signal conventions, gotchas, and useful examples unless they are outdated or incorrect.
-- Prefer incremental improvement over full rewrites.
-- Remove duplicated, low-value, outdated, or obvious information.
-- Reorganize sections only when it improves clarity or discoverability.
-- Do not shorten files aggressively if the current content is genuinely useful.
-- Keep the tone and structure reasonably consistent with the existing file unless there is a strong reason to change it.
-
----
-
-## Phase 2: Create or Update Root AGENTS.md
-
-### Line Count Rules
-
-- If the current AGENTS.md file does NOT already exist:
-  - Root AGENTS.md files should stay concise and high-signal, typically under 100 lines.
-  - Sub-folder AGENTS.md files should stay concise but sufficient, typically under 90 lines.
-
-- If the current AGENTS.md file ALREADY exists:
-  - Ignore the previous maximum line count rules.
-  - Existing AGENTS.md files may expand up to 150 lines when necessary.
-  - Still prioritize brevity, token efficiency, and high-signal information only.
-  - Do not add filler, exhaustive documentation, or obvious framework explanations.
-
-This is a routing file, not documentation.
+Root AGENTS.md files should stay concise and high-signal, typically under 100 lines. This is a routing file, not documentation.
 
 ### Required Sections (3 only)
 
@@ -94,7 +68,7 @@ ONLY rules an agent would violate without being told:
 - Never log or commit API keys.
 ```
 
-**3. JIT Index** (10-15 lines)
+**3. JIT Index** (omit if no sub-directories qualify)
 Pointers to sub-files, nothing else:
 ```markdown
 ## JIT Index
@@ -113,9 +87,9 @@ Pointers to sub-files, nothing else:
 
 ---
 
-## Phase 3: Create or Update Sub-Folder AGENTS.md Files
+## Phase 3: Create Sub-Folder AGENTS.md Files
 
-**Target: concise but sufficient, typically under 90 lines for new files. Existing AGENTS.md files may expand up to 150 lines if needed.** Only for directories with non-obvious patterns.
+Target: concise but sufficient, typically under 90 lines. Only for directories with non-obvious patterns.
 
 **Do NOT generate a sub-AGENTS.md if the directory follows standard framework conventions with no surprises.**
 
@@ -175,12 +149,12 @@ Generate files in this order:
 ---
 File: `AGENTS.md` (root)
 ---
-[content — typically under 100 lines, routing + non-obvious conventions only]
+[content — under 100 lines, routing + non-obvious conventions only]
 
 ---
 File: `[dir]/AGENTS.md` (only for dirs with non-obvious patterns)
 ---
-[content — typically under 90 lines, conventions + gotchas only]
+[content — under 90 lines, conventions + gotchas only]
 
 [...repeat for each qualifying directory...]
 ```
@@ -191,10 +165,8 @@ File: `[dir]/AGENTS.md` (only for dirs with non-obvious patterns)
 
 ### Information Diet (most important)
 - [ ] Every line answers: "Would an agent get this wrong without being told?" — if no, cut it
-- [ ] New root AGENTS.md files remain concise and high-signal (typically under 100 lines)
-- [ ] New sub-files remain concise but sufficiently detailed (typically under 90 lines)
-- [ ] Existing AGENTS.md files only expand beyond previous limits when the added information is genuinely high value
-- [ ] No AGENTS.md exceeds 150 lines
+- [ ] Root AGENTS.md is under 100 lines
+- [ ] Sub-files are under 90 lines
 - [ ] No file trees, directory descriptions, or framework explanations
 - [ ] No "Definition of Done" or prescriptive validation checklists
 - [ ] No duplicate information across files
@@ -203,6 +175,7 @@ File: `[dir]/AGENTS.md` (only for dirs with non-obvious patterns)
 - [ ] Root links to all sub-AGENTS.md files
 - [ ] Each sub-file covers only its directory's non-obvious patterns
 - [ ] No orphaned sub-files (all linked from root)
+- [ ] JIT Index omitted if no sub-directories qualify
 
 ### Accuracy
 - [ ] All referenced files actually exist in the codebase
