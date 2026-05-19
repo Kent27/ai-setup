@@ -2,7 +2,7 @@
 
 ## Research-Backed Principles
 
-Based on empirical research (Gloaguen et al. 2026, Li et al. 2026):
+The following principles are based on practical observations from agent workflows, prompt engineering experiments, and common failure patterns in repository-scale coding agents:
 
 1. **Context files reduce success rates when they add unnecessary requirements** -- every instruction is a constraint the agent will try to honor, and some cost more than they save.
 2. **Focused files with 2-3 sections outperform comprehensive documentation** -- token efficiency matters more than thoroughness.
@@ -37,7 +37,21 @@ Present this as a short structured summary before generating files.
 
 ---
 
-## Phase 2: Generate Root AGENTS.md
+## Existing AGENTS.md Handling
+
+If an AGENTS.md file already exists:
+
+- Treat the existing file as the primary source of repository-specific knowledge.
+- Preserve high-signal conventions, gotchas, and useful examples unless they are outdated or incorrect.
+- Prefer incremental improvement over full rewrites.
+- Remove duplicated, low-value, outdated, or obvious information.
+- Reorganize sections only when it improves clarity or discoverability.
+- Do not shorten files aggressively if the current content is genuinely useful.
+- Keep the tone and structure reasonably consistent with the existing file unless there is a strong reason to change it.
+
+---
+
+## Phase 2: Create or Update Root AGENTS.md
 
 ### Line Count Rules
 
@@ -99,7 +113,7 @@ Pointers to sub-files, nothing else:
 
 ---
 
-## Phase 3: Generate Sub-Folder AGENTS.md Files
+## Phase 3: Create or Update Sub-Folder AGENTS.md Files
 
 **Target: concise but sufficient, typically ~40-90 lines for new files. Existing AGENTS.md files may expand up to 150 lines if needed.** Only for directories with non-obvious patterns.
 
