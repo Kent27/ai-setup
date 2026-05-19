@@ -1,183 +1,153 @@
 # Task: Generate Hierarchical AGENTS.md System
 
-## Principles
+## What AGENTS.md Is For
 
-The following principles are based on practical observations from agent workflows, prompt engineering experiments, and common failure patterns in repository-scale coding agents:
+AGENTS.md files are read by AI agents, not humans. Their only job is to prevent wasted turns by surfacing information the agent cannot infer from reading the code. Every line that fails this test consumes context budget without improving outcomes.
 
-1. **Context files reduce success rates when they add unnecessary requirements** -- every instruction is a constraint the agent will try to honor, and some cost more than they save.
-2. **Focused files with 2-3 sections outperform comprehensive documentation** -- token efficiency matters more than thoroughness.
-3. **Only document what agents cannot infer from code** -- agents can read file trees, understand TypeScript strict mode, and discover patterns via grep. Don't restate the obvious.
-4. **Compliance checklists (lint, test, build) add failure points** -- agents already know to validate; prescriptive "Definition of Done" lists cause cascading failures on simple tasks.
+**The primary filter** — before including any information, ask: *"Would an agent get this wrong within 1-2 tool calls?"* If no, cut it.
 
-### What Belongs in AGENTS.md
+---
 
-| INCLUDE (high value)                                   | EXCLUDE (agents infer these)             |
-|--------------------------------------------------------|------------------------------------------|
-| Non-obvious conventions (import aliases, naming rules) | File tree / directory descriptions       |
-| Security guardrails (gitignored secrets, auth flow)    | What TypeScript strict mode means        |
-| Build/test commands (only if non-standard)             | Standard framework conventions           |
-| Gotchas that waste agent turns                         | Obvious patterns visible in code         |
-| Pointer to example files for unusual patterns          | Exhaustive API/type documentation        |
+## What Belongs vs. What Doesn't
+
+| INCLUDE                                                        | EXCLUDE                                          |
+|----------------------------------------------------------------|--------------------------------------------------|
+| Non-obvious module boundaries and import rules                 | File trees (agents use `ls`)                     |
+| Security guardrails and auth flow specifics                    | Framework conventions agents already know        |
+| Dev commands only if non-standard (e.g. one command runs two servers) | Standard `npm test`, `pnpm build`          |
+| Custom protocols or tags agents would misread as plain text    | Code style rules enforced by linters             |
+| Gotchas that have caused real agent or developer mistakes      | "Definition of Done" checklists                  |
+| JIT pointers to sub-files with a description of what each covers | grep/find commands                             |
 
 ---
 
 ## Phase 1: Repository Analysis
 
-Before generating, analyze the codebase and identify:
+Analyze the codebase and produce a short structured summary covering:
 
-1. **Repository type**: Monorepo, multi-package, or single project?
-2. **Tech stack**: Languages, frameworks, package manager
-3. **Directories needing their own AGENTS.md** (only those with non-obvious conventions)
-4. **Non-inferrable conventions**: Things an agent would get wrong without being told
-5. **Known gotchas**: Patterns that have caused agent (or developer) mistakes
+1. Repository type (monorepo, multi-package, single project)
+2. Tech stack (languages, frameworks, package manager)
+3. Directories that have non-obvious conventions (candidates for sub-AGENTS.md)
+4. Rules an agent would violate without being told
+5. Gotchas — patterns that have caused real mistakes
 
-Present this as a short structured summary before generating files.
-
-**Critical filter**: For each piece of information you plan to include, ask: *"Would an agent figure this out within 1-2 tool calls by reading the code?"* If yes, omit it.
+Apply the primary filter to every candidate item before proceeding.
 
 ---
 
-## Phase 2: Create Root AGENTS.md
+## Phase 2: Root AGENTS.md
 
-Root AGENTS.md files should stay concise and high-signal, typically under 100 lines. This is a routing file, not documentation.
+**Ceiling: under 120 lines.** If you exceed this, you are documenting instead of routing. Re-apply the primary filter and cut everything that fails.
 
-### Required Sections (3 only)
+### Sections
 
-**1. Project Snapshot** (5-8 lines)
-One-line answers only:
+**Project Snapshot** — required
+One line per item. Only include fields that apply to this repo. Omit fields like "Styling" or "State" for backend-only projects.
+
 ```markdown
 ## Project Snapshot
 
 - **Type**: [Monorepo / Single app / etc.]
 - **Stack**: [Framework + language + key tools]
-- **Styling**: [Approach]
-- **State**: [State management library]
 - **Package Manager**: [Tool + version]
 ```
 
-**2. Non-Obvious Conventions** (10-20 lines)
-ONLY rules an agent would violate without being told:
+**Shared Rules** — include if there are architectural rules an agent would violate
+Focus on module boundaries, import conventions, and non-obvious runtime behavior. Omit anything a linter or type-checker enforces automatically.
+
 ```markdown
-## Conventions
+## Shared Rules
 
-### Import Rules
-- Use `~/` prefix for all imports (aliased to `./app/`). Relative imports (`../`) will fail lint.
-
-### Security
-- `app/config.js` contains secrets — gitignored. Use `app/config.js.sample` as template.
-- Never log or commit API keys.
+- Use `~/` imports inside `app/`; relative imports in app code fail lint.
+- Treat `.server/` modules as server-only. Do not import them from client components.
+- `pnpm dev` runs both Remix and the Express sidecar concurrently — not just the frontend.
 ```
 
-**3. JIT Index** (omit if no sub-directories qualify)
-Pointers to sub-files, nothing else:
+**Security & Auth** — include if there are secrets or a non-standard auth flow
+Be specific. Generic "don't commit secrets" adds no value. Include the auth mechanism if it is non-obvious.
+
+```markdown
+## Security & Auth
+
+- `app/config.js` and `express/.env` are gitignored; start from the `.sample` files.
+- Auth is not cookie-only: a session token also arrives via parent iframe `postMessage`.
+- Read `app/root.tsx` and `app/lib/external/auth.ts` before touching any auth flow.
+```
+
+**Project Gotchas** — highest priority, include if any exist
+Each bullet must describe a failure mode, not just a rule. If a gotcha is obvious from reading the code, cut it.
+
+```markdown
+## Project Gotchas
+
+- The chat pipeline uses `<customArtifact>` / `<customAction>` tags — application protocol, not HTML. Do not escape or strip them.
+- `WORK_DIR` is intentionally an empty string; paths are project-root-relative by design.
+- In server modules and route handlers, avoid `node:path`; Vite HMR resolves it to a browser polyfill and breaks dev flows.
+```
+
+**JIT Index** — required if sub-AGENTS.md files exist
+Each entry must describe what the sub-file covers, not just link to it. Agents use this to decide whether to read a sub-file before acting.
+
 ```markdown
 ## JIT Index
 
-- `app/components/` → [see AGENTS.md](app/components/AGENTS.md)
-- `app/lib/` → [see AGENTS.md](app/lib/AGENTS.md)
-- `app/routes/` → [see AGENTS.md](app/routes/AGENTS.md)
+- `app/components/` → [AGENTS.md](app/components/AGENTS.md) — chat/workbench UI, client-only boundaries, attachment gotchas
+- `app/lib/` → [AGENTS.md](app/lib/AGENTS.md) — stores, LLM orchestration, runtime protocol, custom AI tools
+- `express/` → [AGENTS.md](express/AGENTS.md) — scheduler sidecar, env-driven log cleanup
 ```
-
-### What NOT to put in root AGENTS.md
-- File trees (agents use `ls`)
-- Build/test commands if they're standard (`npm test`, `pnpm build`)
-- Framework explanations
-- "Definition of Done" checklists
-- grep/find commands (agents know how to search)
 
 ---
 
-## Phase 3: Create Sub-Folder AGENTS.md Files
+## Phase 3: Sub-Folder AGENTS.md Files
 
-Target: concise but sufficient, typically under 90 lines. Only for directories with non-obvious patterns.
+**Ceiling: under 90 lines.** If you exceed this, the directory likely needs further decomposition into nested sub-files rather than more content in one file.
 
-**Do NOT generate a sub-AGENTS.md if the directory follows standard framework conventions with no surprises.**
+**Do not generate a sub-AGENTS.md if the directory follows standard framework conventions with no surprises.**
 
-### Required Sections (2-3 only)
+### Sections
 
-**1. Identity** (heading + one-sentence description)
-```markdown
-# [Directory] AGENTS.md
+**Identity** — one sentence describing what the directory contains and its primary tool or pattern.
 
-[One sentence: what this directory contains and its primary framework/tool]
-```
+**Conventions** — rules specific to this directory that an agent would get wrong. Omit anything already in root AGENTS.md or inferrable from the code.
 
-**2. Conventions & Gotchas** (15-30 lines)
-The core value section. Only include rules that:
-- An agent would get wrong without being told
-- Have caused real bugs or failed PRs
-- Are specific to THIS directory (not universal)
+**Gotchas** — failure modes specific to this directory. Each bullet describes what goes wrong, not just the rule.
 
-```markdown
-## Conventions
+**Key Files** — optional. Only if there is a non-obvious pattern an agent must copy rather than invent.
 
-- Feature components: `[Feature]/[Feature].tsx` (not `[feature].tsx`)
-- All UI primitives use CVA for variants — see `ui/button.tsx` for the pattern
-- Client-only components MUST use `.client.tsx` suffix (Remix convention for no-SSR)
-
-## Gotchas
-
-- `useStore()` is from nanostores, not zustand — don't import from wrong package
-- Preview routes proxy to iframe; never return HTML directly
-```
-
-**3. Key Files** (5-8 lines, optional)
-Only for non-obvious patterns an agent should copy:
 ```markdown
 ## Key Files
 
 | File | Why it matters |
-|------|---------------|
-| `chat/BaseChat.tsx` | Reference for chat UI pattern with streaming |
-| `ui/IconButton.tsx` | CVA variant pattern to follow |
+|------|----------------|
+| `chat/BaseChat.tsx` | Reference for streaming chat UI pattern |
 ```
-
-### What NOT to put in sub-AGENTS.md files
-- Content already in root AGENTS.md
-- Standard framework patterns the agent knows
-- Exhaustive file listings
-- grep commands
-- Type definitions (agents read the actual types)
 
 ---
 
 ## Output Format
 
-Generate files in this order:
-
 ```
 ---
-File: `AGENTS.md` (root)
+File: AGENTS.md (root)
 ---
-[content — under 100 lines, routing + non-obvious conventions only]
+[content]
 
 ---
-File: `[dir]/AGENTS.md` (only for dirs with non-obvious patterns)
+File: [dir]/AGENTS.md
 ---
-[content — under 90 lines, conventions + gotchas only]
-
-[...repeat for each qualifying directory...]
+[content]
 ```
 
 ---
 
 ## Final Checklist
 
-### Information Diet (most important)
-- [ ] Every line answers: "Would an agent get this wrong without being told?" — if no, cut it
-- [ ] Root AGENTS.md is under 100 lines
-- [ ] Sub-files are under 90 lines
-- [ ] No file trees, directory descriptions, or framework explanations
-- [ ] No "Definition of Done" or prescriptive validation checklists
-- [ ] No duplicate information across files
-
-### Structure
-- [ ] Root links to all sub-AGENTS.md files
-- [ ] Each sub-file covers only its directory's non-obvious patterns
-- [ ] No orphaned sub-files (all linked from root)
-- [ ] JIT Index omitted if no sub-directories qualify
-
-### Accuracy
+- [ ] Every line survives the primary filter: an agent would get this wrong without being told
+- [ ] Root is under 120 lines; sub-files are under 90 lines
+- [ ] No file trees, grep commands, framework explanations, or linter-enforced style rules
+- [ ] No "Definition of Done" checklists
+- [ ] Project Gotchas section exists at the root level if any real gotchas were found
+- [ ] JIT Index entries describe what each sub-file covers, not just link to it
+- [ ] No information is duplicated across files
 - [ ] All referenced files actually exist in the codebase
-- [ ] Conventions reflect actual codebase patterns (verified by reading code)
-- [ ] No aspirational rules — only document what IS, not what SHOULD BE
+- [ ] No aspirational rules — document what IS, not what SHOULD BE
