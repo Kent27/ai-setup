@@ -56,8 +56,8 @@ If an AGENTS.md file already exists:
 ### Line Count Rules
 
 - If the current AGENTS.md file does NOT already exist:
-  - Root AGENTS.md files should stay concise and high-signal, typically ~60-100 lines.
-  - Sub-folder AGENTS.md files should stay concise but sufficient, typically ~40-90 lines.
+  - Root AGENTS.md files should stay concise and high-signal, typically under 100 lines.
+  - Sub-folder AGENTS.md files should stay concise but sufficient, typically under 90 lines.
 
 - If the current AGENTS.md file ALREADY exists:
   - Ignore the previous maximum line count rules.
@@ -115,13 +115,13 @@ Pointers to sub-files, nothing else:
 
 ## Phase 3: Create or Update Sub-Folder AGENTS.md Files
 
-**Target: concise but sufficient, typically ~40-90 lines for new files. Existing AGENTS.md files may expand up to 150 lines if needed.** Only for directories with non-obvious patterns.
+**Target: concise but sufficient, typically under 90 lines for new files. Existing AGENTS.md files may expand up to 150 lines if needed.** Only for directories with non-obvious patterns.
 
 **Do NOT generate a sub-AGENTS.md if the directory follows standard framework conventions with no surprises.**
 
 ### Required Sections (2-3 only)
 
-**1. Identity** (2 lines)
+**1. Identity** (heading + one-sentence description)
 ```markdown
 # [Directory] AGENTS.md
 
@@ -175,12 +175,12 @@ Generate files in this order:
 ---
 File: `AGENTS.md` (root)
 ---
-[content — typically ~60-100 lines, routing + non-obvious conventions only]
+[content — typically under 100 lines, routing + non-obvious conventions only]
 
 ---
 File: `[dir]/AGENTS.md` (only for dirs with non-obvious patterns)
 ---
-[content — typically ~40-90 lines, conventions + gotchas only]
+[content — typically under 90 lines, conventions + gotchas only]
 
 [...repeat for each qualifying directory...]
 ```
@@ -191,8 +191,8 @@ File: `[dir]/AGENTS.md` (only for dirs with non-obvious patterns)
 
 ### Information Diet (most important)
 - [ ] Every line answers: "Would an agent get this wrong without being told?" — if no, cut it
-- [ ] New root AGENTS.md files remain concise and high-signal (typically ~60-100 lines)
-- [ ] New sub-files remain concise but sufficiently detailed (typically ~40-90 lines)
+- [ ] New root AGENTS.md files remain concise and high-signal (typically under 100 lines)
+- [ ] New sub-files remain concise but sufficiently detailed (typically under 90 lines)
 - [ ] Existing AGENTS.md files only expand beyond previous limits when the added information is genuinely high value
 - [ ] No AGENTS.md exceeds 150 lines
 - [ ] No file trees, directory descriptions, or framework explanations
