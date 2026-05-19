@@ -39,7 +39,19 @@ Present this as a short structured summary before generating files.
 
 ## Phase 2: Generate Root AGENTS.md
 
-**Target: 50-80 lines max.** This is a routing file, not documentation.
+### Line Count Rules
+
+- If an AGENTS.md file does NOT already exist:
+  - Root AGENTS.md target: 50-80 lines max.
+  - Sub-folder AGENTS.md target: 30-50 lines max each.
+
+- If an AGENTS.md file ALREADY exists:
+  - Ignore the previous maximum line count rules.
+  - Existing AGENTS.md files may expand up to 150 lines when necessary.
+  - Still prioritize brevity, token efficiency, and high-signal information only.
+  - Do not add filler, exhaustive documentation, or obvious framework explanations.
+
+This is a routing file, not documentation.
 
 ### Required Sections (3 only)
 
@@ -89,7 +101,7 @@ Pointers to sub-files, nothing else:
 
 ## Phase 3: Generate Sub-Folder AGENTS.md Files
 
-**Target: 30-50 lines max each.** Only for directories with non-obvious patterns.
+**Target: 30-50 lines max each for new files. Existing AGENTS.md files may expand up to 150 lines if needed.** Only for directories with non-obvious patterns.
 
 **Do NOT generate a sub-AGENTS.md if the directory follows standard framework conventions with no surprises.**
 
@@ -165,8 +177,10 @@ File: `[dir]/AGENTS.md` (only for dirs with non-obvious patterns)
 
 ### Information Diet (most important)
 - [ ] Every line answers: "Would an agent get this wrong without being told?" — if no, cut it
-- [ ] Root AGENTS.md is under 80 lines
-- [ ] Sub-files are under 50 lines each
+- [ ] New root AGENTS.md files are under 80 lines
+- [ ] New sub-files are under 50 lines each
+- [ ] Existing AGENTS.md files only expand beyond previous limits when the added information is genuinely high value
+- [ ] No AGENTS.md exceeds 150 lines
 - [ ] No file trees, directory descriptions, or framework explanations
 - [ ] No "Definition of Done" or prescriptive validation checklists
 - [ ] No duplicate information across files
